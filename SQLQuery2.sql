@@ -84,6 +84,7 @@ INSERT INTO Medicos VALUES
 -- Leitura
 SELECT * FROM Medicos
 
+
 -- Inserção de dados na tabela
 INSERT INTO TelefonesMedicos VALUES
 (55, 16, 998998898, 5),
@@ -177,3 +178,90 @@ INSERT INTO Consultas VALUES
 ('2025-10-13 12:26:00', 1, 2, 'Fora de horário de atendimento', 'Só veio pelo atestado', 2, 3);
 -- Leitura
 SELECT * FROM Consultas
+
+SELECT * FROM Convenios
+SELECT * FROM TelefonesConvenios
+
+SELECT c.NomeConvenio, c.SiteConvenio, c.CNPJ,
+	t.CodPais, t.CodArea, t.Numero,
+	e.Logradouro, e.Numero, e.Complemento, e.Bairro, e.Cidade, e.CEP
+FROM Convenios c
+LEFT JOIN TelefonesConvenios t     -- LEFT (ele traz todos, mesmo aqueles que não tem)
+ON c.idConvenio = t.idConvenio
+LEFT JOIN Enderecos e
+ON c.idEndereco = e.id
+
+
+ALTER TABLE Convenios
+ADD idEndereco INT
+
+ALTER TABLE Convenios
+ADD FOREIGN KEY (idEndereco) REFERENCES Enderecos(id)
+
+INSERT INTO Enderecos (Logradouro, Numero, Bairro, Cidade, CEP)
+VALUES('Rua Majestade', 70,'Jd das Pedras', 'Campinas', 14804895)
+
+SELECT * FROM Enderecos
+
+UPDATE Convenios
+SET idEndereco = 1005
+WHERE idConvenio = 3
+
+SELECT * FROM MedicosEspecialidades
+
+DELETE FROM MedicosEspecialidades WHERE id = 2
+
+
+ALTER TABLE MedicosEspecialidades
+ADD CONSTRAINT UQ_MedicosEspecialidades UNIQUE (idMedico, idEspecialidade)  -- Transforma a soma dos dois campos como único
+
+-- ALTER TABLE MedicosEspecialidades                               *Essa é a segunda maneira, ocorre a este quando não existe chaves primárias
+-- ADD CONSTRAINT PK_MedicosEspecialidades PRIMARY KEY (idMedico, idEspecialidade)
+
+SELECT * FROM Pacientes
+SELECT * FROM Enderecos
+
+--SELECT * FROM Pacientes
+--JOIN Enderecos
+--ON Pacientes.idEndereco = Enderecos.id
+
+--SELECT p.Nome, p.Sobrenome, p.CPF, e.CEP
+--FROM Pacientes p
+--JOIN  Enderecos e
+--ON p.idEndereco = e.id
+
+INSERT INTO Pacientes
+VALUES('Henrique', 'Rossin', 45645567, '2002-04-09',2)
+
+SELECT p.Nome, p.Sobrenome, p.CPF, e.CEP, tp.Numero
+FROM Pacientes p
+LEFT JOIN  Enderecos e
+ON p.idEndereco = e.id
+LEFT JOIN TelefonesPacientes tp
+ON p.idPaciente = tp.idPaciente
+
+
+-- FILTRO
+SELECT p.Nome, p.Sobrenome, p.CPF, e.CEP, tp.Numero    -- Colunas que quero de informação
+FROM Pacientes p     -- Primeira tabela para juntar
+LEFT JOIN  Enderecos e     -- Segunda tabela para juntar
+ON p.idEndereco = e.id      -- campos incomuns para juntar
+LEFT JOIN TelefonesPacientes tp  -- Segunda tabela para juntar (tendo a junção como a primeira)
+ON p.idPaciente = tp.idPaciente     -- campos incomuns para juntar
+WHERE e.CEP = 14801534   -- Condição para o filtro
+
+
+-- agora o objetivo é juntar essas três tabelas (muitos pra muitos)
+SELECT * FROM Medicos
+SELECT * FROM MedicosEspecialidades
+SELECT * FROM EspecialidadesMedicas
+
+SELECT m.Nome, m.Sobrenome, m.CRM, e.NomeEspecialidade
+FROM MedicosEspecialidades me
+JOIN EspecialidadesMedicas e
+ON me.idEspecialidade = e.idEspecialidade
+JOIN Medicos m
+ON me.idMedico = m.idMedico
+
+
+
